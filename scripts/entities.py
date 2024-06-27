@@ -70,7 +70,6 @@ class PhysicsEntity:
         # Fill the rect with red color and blit it onto the screen
         # pygame.draw.rect(surf, (255, 0, 0), self.rect().move(-offset[0], -offset[1]))
 
-
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)

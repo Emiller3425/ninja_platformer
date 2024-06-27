@@ -1,5 +1,5 @@
 import pygame
-
+import re
 import os
 
 BASE_IMG_PATH = "graphics/"
@@ -12,8 +12,15 @@ def load_image(path):
 
 def load_images(path):
     images = []
-    for img_name in os.listdir(BASE_IMG_PATH + path):
-        images.append(load_image(path + '/' + img_name).convert())
+
+    def extract_number(f):
+        return int(re.search(r'(\d+)', f).group(0))
+    
+    img_names = sorted([f for f in os.listdir(BASE_IMG_PATH + path) if f.endswith('.png')],
+                       key=extract_number)
+    for img_name in img_names:
+        if img_name.endswith('.png'):
+            images.append(load_image(path + '/' + img_name).convert())
     return images
 
 class Animation:
@@ -31,9 +38,11 @@ class Animation:
         if self.loop:
             self.frame = (self.frame + 1) % (len(self.images) * self.img_duration)
         else:
-            self.frame = min(self.frame + 1, len(self.images) * self.img_duration - 1)
-            if self.frame >= len(self.images) * self.img_duration - 1:
-                self.done = True
+            if not self.done:
+                self.frame += 1
+                if self.frame >= len(self.images) * self.img_duration - 1:
+                    self.done = True
+                    self.frame = len(self.images) * self.img_duration - 1
 
     def img(self):
         return self.images[int(self.frame) // self.img_duration]

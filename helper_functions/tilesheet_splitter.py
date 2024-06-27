@@ -2,10 +2,10 @@ from PIL import Image
 import os
 
 # Directory containing the tilesheet file
-directory = '../graphics/animations_spritesheet/player/animation_sheets/'
+directory = '../graphics/spritesheet_images/tree'
 
 # Path to the tilesheet file
-tilesheet_path = os.path.join(directory, 'ninja_idle.png')
+tilesheet_path = os.path.join(directory, '0.png')
 
 # Directory to save the individual tiles
 output_directory = '.'

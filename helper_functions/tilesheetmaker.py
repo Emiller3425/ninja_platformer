@@ -2,23 +2,33 @@ from PIL import Image
 import os
 
 # Directory containing the PNG files
-directory = '../graphics/spritesheet_images'
+base_directory = '../graphics'
+
+# Directories to exclude
+exclude_dirs = ['idle', 'jump', 'run', 'sky', 'cloud']
 
 # Path to the tilesheet file
-tilesheet_path = os.path.join(directory, 'tilesheet.png')
+tilesheet_path = os.path.join(base_directory, 'tilesheet.png')
 
 # Remove the existing tilesheet file if it exists
 if os.path.exists(tilesheet_path):
     os.remove(tilesheet_path)
 
-# List all PNG files in the directory
-files = [f for f in os.listdir(directory) if f.endswith('.png')]
+# List all PNG files in the directory and subdirectories, excluding specified directories
+files = []
+for root, dirnames, filenames in os.walk(base_directory):
+    # Remove directories to exclude
+    dirnames[:] = [d for d in dirnames if d not in exclude_dirs]
+
+    for filename in filenames:
+        if filename.endswith('.png') and filename != 'tilesheet.png':
+            files.append(os.path.join(root, filename))
 
 # Sort the files to ensure consistent order
 files.sort()
 
 # Open all images and store them in a list
-images = [Image.open(os.path.join(directory, file)) for file in files]
+images = [Image.open(file) for file in files]
 
 # Set the size of each tile
 tile_width, tile_height = 16, 16
@@ -47,4 +57,4 @@ for image in images:
             tile_index += 1
 
 # Save the tilesheet
-tilesheet.save('tilesheet.png')
+tilesheet.save(tilesheet_path)
