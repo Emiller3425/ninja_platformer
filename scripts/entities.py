@@ -97,16 +97,26 @@ class Enemy(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'enemy', pos, size)
         self.set_action('idle')
+        self.knockback = pygame.Vector2(0, 0)  # Initialize knockback vector
+    
+    def apply_knockback(self, knockback):
+        self.knockback = knockback  # Apply knockback
     
     def update(self, tilemap, movement=(0, 0)):
+        # Apply knockback to movement
+        if self.knockback.length() > 0:
+            movement = (movement[0] + self.knockback.x, movement[1] + self.knockback.y)
+            self.knockback *= 0.9  # Dampen knockback over time
+            if self.knockback.length() < 0.1:
+                self.knockback = pygame.Vector2(0, 0)  # Stop knockback if it's very small
+
         super().update(tilemap, movement=movement)
     
     def render(self, surf, offset=(0, 0)):
-        # # Draw the hitbox rectangle
+        # Draw the hitbox rectangle
         # hitbox = self.rect().move(-offset[0], -offset[1])
         # pygame.draw.rect(surf, (255, 0, 0), hitbox)
         # Draw the image for visual reference
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), 
                   (self.pos[0] - offset[0] + self.anim_offset[0] - 5, self.pos[1] - offset[1] + self.anim_offset[1]))
-
 

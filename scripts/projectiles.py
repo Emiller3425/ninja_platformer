@@ -26,6 +26,7 @@ class Projectile:
     def check_collision(self):
         for enemy in self.game.enemies:
             if enemy.rect().colliderect(self.rect()):
+                enemy.apply_knockback(self.knockback)
                 return True
         return False
             
@@ -42,7 +43,7 @@ class Projectile:
         img = self.animation.img()
         # Draw the projectile image
         surf.blit(img, (self.pos[0] - offset[0] - img.get_width() // 2, self.pos[1] - offset[1] - img.get_height() // 2))
-        # # Draw the hitbox rectangle
+        # Draw the hitbox rectangle
         # hitbox = self.rect().move(-offset[0], -offset[1])
         # pygame.draw.rect(surf, (0, 255, 0), hitbox, 1)
 
@@ -50,6 +51,7 @@ class Shuriken(Projectile):
     def __init__(self, game, pos, velocity=[0, 0], frame=0):
         super().__init__(game, 'shuriken', pos, velocity=velocity, frame=frame)
         # shallow copy because we can reverse the list without affecting the original
+        self.knockback = pygame.Vector2(3, -2) if velocity[0] > 0 else pygame.Vector2(-3, -2)
         self.animation.images = self.animation.images[:]
         if self.velocity[0] < 0:
             self.animation.images.reverse()
