@@ -3,6 +3,7 @@ from pytmx.util_pygame import load_pygame
 
 NEIGHBORS_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
 PHYSICS_TILE_TYPES = {'grass'}
+INTRERACTABLE_TILE_TYPES = {'ladder'}
 
 class Tilemap:
     def __init__(self, game, tile_size=16):
@@ -98,6 +99,20 @@ class Tilemap:
         rects = []
         for tile in self.tiles_arounds(pos):
             if tile['type'] in PHYSICS_TILE_TYPES:
+                rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+        return rects
+    
+    def ladders_around(self, pos):
+        ladders = []
+        for tile in self.tiles_arounds(pos):
+            if tile['type'] in INTRERACTABLE_TILE_TYPES:
+                ladders.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+        return ladders
+    
+    def interaction_rects_around(self, pos):
+        rects = []
+        for tile in self.tiles_arounds(pos):
+            if tile['type'] in INTRERACTABLE_TILE_TYPES:
                 rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
         return rects
 

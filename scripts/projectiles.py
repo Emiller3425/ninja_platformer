@@ -1,13 +1,16 @@
 import pygame
 
 class Projectile:
-    def __init__(self, game, p_type, pos, velocity=[0, 0], frame=0):
+    def __init__(self, game, p_type, pos, velocity=[0, 0], frame=0, size=None):
         self.game = game
         self.type = p_type
         self.pos = list(pos)
         self.velocity = list(velocity)
         self.animation = self.game.assets['projectiles/' + p_type].copy()
         self.animation_frame = frame
+        
+        img = self.animation.img()
+        self.size = size if size else (img.get_width(), img.get_height())
 
     def update(self):
         kill = False
@@ -31,12 +34,11 @@ class Projectile:
         return False
             
     def rect(self):
-        img = self.animation.img()
         return pygame.Rect(
-            self.pos[0] - img.get_width() // 2,
-            self.pos[1] - img.get_height() // 2,
-            img.get_width(),
-            img.get_height()
+            self.pos[0] - self.size[0] // 2,
+            self.pos[1] - self.size[1] // 2,
+            self.size[0],
+            self.size[1]
         )
 
     def render(self, surf, offset=(0, 0)):
@@ -48,9 +50,8 @@ class Projectile:
         # pygame.draw.rect(surf, (0, 255, 0), hitbox, 1)
 
 class Shuriken(Projectile):
-    def __init__(self, game, pos, velocity=[0, 0], frame=0):
-        super().__init__(game, 'shuriken', pos, velocity=velocity, frame=frame)
-        # shallow copy because we can reverse the list without affecting the original
+    def __init__(self, game, pos, velocity=[0, 0], frame=0, size=(12,12)):
+        super().__init__(game, 'shuriken', pos, velocity=velocity, frame=frame, size=size)
         self.knockback = pygame.Vector2(3, -2) if velocity[0] > 0 else pygame.Vector2(-3, -2)
         self.animation.images = self.animation.images[:]
         if self.velocity[0] < 0:

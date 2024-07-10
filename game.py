@@ -27,6 +27,7 @@ class Game:
             'player/idle': Animation(load_images('animations_spritesheet/player/idle'), img_dur=10),
             'player/jump': Animation(load_images('animations_spritesheet/player/jump')),
             'player/run': Animation(load_images('animations_spritesheet/player/run'), img_dur=8),
+            'player/climb': Animation(load_images('animations_spritesheet/player/climb'), img_dur=10),
             'enemy': load_images('animations_spritesheet/enemy'),
             'enemy/idle': Animation(load_images('animations_spritesheet/enemy/idle'), img_dur=10),
             'enemy/run': Animation(load_images('animations_spritesheet/enemy/run'), img_dur=8),
@@ -35,7 +36,7 @@ class Game:
             'tree': load_images('spritesheet_images/tree'),
             'ladder': load_images('spritesheet_images/ladder'),
             'clouds': load_images('spritesheet_images/cloud'),
-            'projectiles/shuriken': Animation(load_images('animations_spritesheet/player/projectiles/shuriken'), img_dur = 5),
+            'projectiles/shuriken': Animation(load_images('animations_spritesheet/player/projectiles/shuriken'), img_dur = 3),
             'particle/leaf': Animation(load_images('animations_spritesheet/particles/leaf'), img_dur = 20, loop=False),
         }
  
@@ -49,12 +50,15 @@ class Game:
         self.enemies = []
         for pos in self.tilemap.enemy_positions:
             self.enemies.append(Enemy(self, (pos[0]*self.tilemap.tile_size, pos[1]*self.tilemap.tile_size), (6, 16)))
-        print(self.enemies)
 
         # Leaf spawners for particles
         self.leaf_spawners = []
         for tree in self.tilemap.extract([('tree', 0), ('tree', 1)], keep=True):
             self.leaf_spawners.append(pygame.Rect(tree['pos'][0], tree['pos'][1], 23, 13))
+
+        self.ladders = []
+        for ladder in self.tilemap.extract([('ladder', 0)], keep=True):
+            self.ladders.append(pygame.Rect(ladder['pos'][0], ladder['pos'][1], 16, 16))
 
         # particles
         self.particles = []
@@ -119,8 +123,14 @@ class Game:
                         self.movement[0] = True
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True
-                    if event.key == pygame.K_UP and self.player.action != 'jump':
+                    if event.key == pygame.K_UP:
+                        if self.player.action =='climb':
+                            self.player.velocity[1] = -1 
+                        elif event.key == pygame.K_UP and self.player.action != 'jump':
                             self.player.velocity[1] = -3
+                    if event.key == pygame.K_DOWN:
+                        if self.player.action == 'climb':
+                            self.player.velocity[1] = 1
                     if event.key == pygame.K_SPACE:
                         if self.player.flip:
                             self.projectiles.append(Shuriken(self, self.player.rect().center, velocity=[-2, 0]))
@@ -131,6 +141,18 @@ class Game:
                         self.movement[0] = False
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = False
+                    if (event.key == pygame.K_UP or event.key == pygame.K_DOWN) and self.player.action == 'climb':
+                        self.player.velocity[1] = 0
+
+            # Handles climbing without additional key events for when the player is jumping up or falling down towards a ladder and holding keys down
+            self.keys = pygame.key.get_pressed()
+            if self.keys[pygame.K_UP] and self.player.action == 'climb':
+                self.player.velocity[1] = -1
+            if self.keys[pygame.K_DOWN] and self.player.action == 'climb':
+                self.player.velocity[1] = 1
+
+                    
+                
 
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
             pygame.display.update()
