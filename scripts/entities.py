@@ -1,6 +1,7 @@
 import pygame
 import random
 from scripts.projectiles import RedShuriken
+from scripts.tilemap import Tilemap
 
 class PhysicsEntity:
     def __init__(self, game, e_type, pos, size, health=100):
@@ -97,7 +98,6 @@ class Player(PhysicsEntity):
                     self.set_action('climb')
                 return
 
-
         self.air_time += 1
         if self.collisions['down']:
             self.air_time = 0
@@ -137,7 +137,21 @@ class Enemy(PhysicsEntity):
         if self.health <= 0:
             self.game.enemies.remove(self)
     
+    def check_ledge(self, tilemap):
+        entity_rect = self.rect()
+        if len(tilemap.physics_rects_around(self.pos)) < 3:
+            return True  # There is a ledge
+    
     def update(self, tilemap, movement=(0, 0)):
+        if self.check_ledge(tilemap):
+            movement = (0, 0)  # Stop movement if there's a ledge
+            return
+        
+        player_pos = self.game.player.pos
+        if player_pos[0] > self.pos[0]:
+            movement = (1, 0)  # Move right
+        elif player_pos[0] < self.pos[0]:
+            movement = (-1, 0)  # Move left
 
         # Apply knockback to movement
         if self.knockback.length() > 0:
