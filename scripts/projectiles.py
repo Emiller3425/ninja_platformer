@@ -30,6 +30,7 @@ class Projectile:
         for enemy in self.game.enemies:
             if enemy.rect().colliderect(self.rect()):
                 enemy.apply_knockback(self.knockback)
+                enemy.take_damage(10)  # Deal 10 damage to the enemy
                 return True
         return False
             
@@ -56,3 +57,18 @@ class Shuriken(Projectile):
         self.animation.images = self.animation.images[:]
         if self.velocity[0] < 0:
             self.animation.images.reverse()
+
+class RedShuriken(Projectile):
+    def __init__(self, game, pos, velocity=[0, 0], frame=0, size=(12,12)):
+        super().__init__(game, 'red_shuriken', pos, velocity=velocity, frame=frame, size=size)
+        self.knockback = pygame.Vector2(3, -2) if velocity[0] > 0 else pygame.Vector2(-3, -2)
+        self.animation.images = self.animation.images[:]
+        if self.velocity[0] < 0:
+            self.animation.images.reverse()
+
+    def check_collision(self):
+        if self.game.player.rect().colliderect(self.rect()):
+            self.game.player.take_damage(10)  # Deal 10 damage to the player
+            return True
+        return False
+

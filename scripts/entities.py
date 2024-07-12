@@ -1,14 +1,17 @@
 import pygame
+import random
+from scripts.projectiles import RedShuriken
 
 class PhysicsEntity:
-    def __init__(self, game, e_type, pos, size):
+    def __init__(self, game, e_type, pos, size, health=100):
         self.game = game
         self.type = e_type
         self.pos = list(pos)
         self.size = size
         self.velocity = [0, 0]
         self.collisions = {'up': False, 'down': False, 'left': False, 'right': False}
-
+        self.health = health
+        self.max_health = health
         self.action = ''
         self.anim_offset = (0, 0)
         self.flip = False
@@ -65,11 +68,16 @@ class PhysicsEntity:
         self.animation.update()
     
     def render(self, surf, offset=(0,0)):
-        # Comment out the current blitting code
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0], self.pos[1] - offset[1] + self.anim_offset[1]))
-        
-        # Fill the rect with red color and blit it onto the screen
-        # pygame.draw.rect(surf, (255, 0, 0), self.rect().move(-offset[0], -offset[1]))
+        self.draw_health_bar(surf, offset)
+    
+    def draw_health_bar(self, surf, offset):
+        if self.health < self.max_health:
+            health_bar_width = self.size[0]
+            health_bar_height = 4
+            health_ratio = self.health / self.max_health
+            pygame.draw.rect(surf, (255, 0, 0), (self.pos[0] - offset[0], self.pos[1] - offset[1] - 6, health_bar_width, health_bar_height))
+            pygame.draw.rect(surf, (0, 255, 0), (self.pos[0] - offset[0], self.pos[1] - offset[1] - 6, health_bar_width * health_ratio, health_bar_height))
 
 class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
@@ -101,20 +109,36 @@ class Player(PhysicsEntity):
         else:
            self.set_action('idle')
     
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            self.health = 0  # Ensure health doesn't go below 0
+            # Handle player death here (e.g., restart level, end game, etc.)
+    
     # Override the render method and add custom offset for player sprite
     def render(self, surf, offset=(0,0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), (self.pos[0] - offset[0] + self.anim_offset[0] - 5, self.pos[1] - offset[1] + self.anim_offset[1]))
 
+
 class Enemy(PhysicsEntity):
-    def __init__(self, game, pos, size):
-        super().__init__(game, 'enemy', pos, size)
+    def __init__(self, game, pos, size, health=50):
+        super().__init__(game, 'enemy', pos, size, health=health)
         self.set_action('idle')
         self.knockback = pygame.Vector2(0, 0)  # Initialize knockback vector
+        self.dodge_cooldown = 0  # Cooldown for dodging
+        self.attack_cooldown = 0  # Cooldown for attacking
+        self.jump_cooldown = 0  # Cooldown for jumping
     
     def apply_knockback(self, knockback):
         self.knockback = knockback  # Apply knockback
     
+    def take_damage(self, damage):
+        self.health -= damage
+        if self.health <= 0:
+            self.game.enemies.remove(self)
+    
     def update(self, tilemap, movement=(0, 0)):
+
         # Apply knockback to movement
         if self.knockback.length() > 0:
             movement = (movement[0] + self.knockback.x, movement[1] + self.knockback.y)
@@ -123,12 +147,8 @@ class Enemy(PhysicsEntity):
                 self.knockback = pygame.Vector2(0, 0)  # Stop knockback if it's very small
 
         super().update(tilemap, movement=movement)
-    
+
     def render(self, surf, offset=(0, 0)):
-        # Draw the hitbox rectangle
-        # hitbox = self.rect().move(-offset[0], -offset[1])
-        # pygame.draw.rect(surf, (255, 0, 0), hitbox)
-        # Draw the image for visual reference
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), 
                   (self.pos[0] - offset[0] + self.anim_offset[0] - 5, self.pos[1] - offset[1] + self.anim_offset[1]))
-
+        self.draw_health_bar(surf, offset)

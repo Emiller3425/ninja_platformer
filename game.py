@@ -8,6 +8,7 @@ from scripts.tilemap import Tilemap
 from scripts.clouds import Clouds
 from scripts.particle import Particle
 from scripts.projectiles import Projectile, Shuriken
+from scripts.ui import UI
 
 class Game:
     def __init__(self):
@@ -36,8 +37,9 @@ class Game:
             'tree': load_images('spritesheet_images/tree'),
             'ladder': load_images('spritesheet_images/ladder'),
             'clouds': load_images('spritesheet_images/cloud'),
-            'projectiles/shuriken': Animation(load_images('animations_spritesheet/player/projectiles/shuriken'), img_dur = 3),
-            'particle/leaf': Animation(load_images('animations_spritesheet/particles/leaf'), img_dur = 20, loop=False),
+            'projectiles/shuriken': Animation(load_images('animations_spritesheet/player/projectiles/shuriken'), img_dur=3),
+            'projectiles/red_shuriken': Animation(load_images('animations_spritesheet/enemy/projectiles/red_shuriken'), img_dur=3),
+            'particle/leaf': Animation(load_images('animations_spritesheet/particles/leaf'), img_dur=20, loop=False),
         }
  
         self.clouds = Clouds(load_images('spritesheet_images/cloud'), count=16)
@@ -67,6 +69,9 @@ class Game:
         self.projectiles = []
 
         self.scroll = [self.tilemap.player_position[0]*self.tilemap.tile_size, self.tilemap.player_position[1]*self.tilemap.tile_size]
+
+        # Initialize the UI
+        self.ui = UI(self)
 
     def run(self):
         while True:
@@ -124,8 +129,8 @@ class Game:
                     if event.key == pygame.K_RIGHT:
                         self.movement[1] = True
                     if event.key == pygame.K_UP:
-                        if self.player.action =='climb':
-                            self.player.velocity[1] = -1 
+                        if self.player.action == 'climb':
+                            self.player.velocity[1] = -1
                         elif event.key == pygame.K_UP and self.player.action != 'jump':
                             self.player.velocity[1] = -3
                     if event.key == pygame.K_DOWN:
@@ -151,10 +156,10 @@ class Game:
             if self.keys[pygame.K_DOWN] and self.player.action == 'climb':
                 self.player.velocity[1] = 1
 
-                    
-                
+            # Render the UI
+            self.ui.render(self.display)
 
-            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0,0))
+            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
 
