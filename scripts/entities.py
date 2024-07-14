@@ -152,7 +152,13 @@ class Enemy(PhysicsEntity):
         self.dodge_cooldown = 0  # Cooldown for dodging
         self.attack_cooldown = 0  # Cooldown for attacking
         self.jump_cooldown = 0  # Cooldown for jumping
-    
+        self.patrol_left = self.pos[0] - 32  # Set patrol left boundary (2 tiles left)
+        self.patrol_right = self.pos[0] + 32  # Set patrol right boundary (2 tiles right)
+        self.patrol_direction = 1  # Start by moving right
+        self.tracking_player = False  # Flag to indicate if the enemy is tracking the player
+        self.exclamation_shown = False  # Flag to show exclamation point
+        self.exclamation_counter = 0  # Counter for exclamation point duration
+
     def apply_knockback(self, knockback):
         self.knockback = knockback  # Apply knockback
     
@@ -162,12 +168,31 @@ class Enemy(PhysicsEntity):
             self.game.enemies.remove(self)  # Remove enemy if health drops to 0
     
     def update(self, tilemap, movement=(0, 0)):
-        # Move towards the player
+        self.tracking_player = False  # Reset tracking flag
+
+        # Move towards the player only if within 8 tiles horizontally (128 pixels) and 4 tiles vertically (64 pixels)
         player_pos = self.game.player.pos
-        if player_pos[0] > self.pos[0]:
-            movement = (0.5, 0)  # Move right
-        elif player_pos[0] < self.pos[0]:
-            movement = (-0.5, 0)  # Move left
+        if abs(player_pos[0] - self.pos[0]) <= 128 and abs(player_pos[1] - self.pos[1]) <= 64:
+            if player_pos[0] > self.pos[0]:
+                movement = (0.5, 0)  # Move right
+            elif player_pos[0] < self.pos[0]:
+                movement = (-0.5, 0)  # Move left
+            if not self.tracking_player:
+                self.exclamation_shown = True  # Show exclamation point when starting to track
+                self.exclamation_counter = 30  # Show for 30 frames
+            self.tracking_player = True  # Set tracking flag
+        else:
+            # Patrol logic
+            if self.patrol_direction == 1:  # Moving right
+                if self.pos[0] < self.patrol_right:
+                    movement = (0.5, 0)
+                else:
+                    self.patrol_direction = -1
+            elif self.patrol_direction == -1:  # Moving left
+                if self.pos[0] > self.patrol_left:
+                    movement = (-0.5, 0)
+                else:
+                    self.patrol_direction = 1
 
         # Apply knockback to movement
         if self.knockback.length() > 0:
@@ -176,7 +201,7 @@ class Enemy(PhysicsEntity):
             if self.knockback.length() < 0.1:
                 self.knockback = pygame.Vector2(0, 0)  # Stop knockback if it's very small
                 
-        next_pos = [self.pos[0] + movement[0], self.pos[1] + self.size[1]]
+        next_pos = [self.pos[0] + movement[0] * 16, self.pos[1] + self.size[1]]
         on_ground = False
         for rect in tilemap.physics_rects_around(next_pos):
             if pygame.Rect(next_pos[0], next_pos[1], self.size[0], 1).colliderect(rect):
@@ -189,12 +214,19 @@ class Enemy(PhysicsEntity):
 
         # Check for collision with the player
         if self.rect().colliderect(self.game.player.rect()):
-            knockback = [movement[0] * 6, -1]  # Set knockback vector
+            if self.pos[0] < self.game.player.pos[0]:
+                knockback = [3, -1]
+            else:         
+                knockback = [-3, -1]  # Set knockback vector
             self.game.player.take_damage(5, knockback)  # Apply damage and knockback to the player
-            if movement[0] > 0:  # Enemy moving right
-                self.pos[0] = self.game.player.rect().left - self.size[0]
-            else:  # Enemy moving left
-                self.pos[0] = self.game.player.rect().right
+
+        # Check for collision with other enemies
+        for enemy in self.game.enemies:
+            if enemy != self and self.rect().colliderect(enemy.rect()) and self.knockback.length() < 0.1:
+                if self.pos[0] < enemy.pos[0]:
+                    self.pos[0] = enemy.pos[0] - self.size[0]
+                elif self.pos[0] > enemy.pos[0]: 
+                    self.pos[0] = enemy.pos[0] + self.size[0]
 
         super().update(tilemap, movement=movement)  # Update position and handle collisions
 
@@ -205,8 +237,20 @@ class Enemy(PhysicsEntity):
         else:
             self.set_action('idle')
 
+        # Update exclamation point counter
+        if self.exclamation_counter > 0:
+            self.exclamation_counter -= 1
+        else:
+            self.exclamation_shown = False
+
     def render(self, surf, offset=(0, 0)):
         surf.blit(pygame.transform.flip(self.animation.img(), self.flip, False), 
                   (self.pos[0] - offset[0] + self.anim_offset[0] - 5, 
                    self.pos[1] - offset[1] + self.anim_offset[1]))
         self.draw_health_bar(surf, offset)  # Draw health bar
+        
+        # Render the exclamation point if it should be shown
+        if self.exclamation_shown:
+            exclamation_img = self.game.assets['exclamation']  # Load the exclamation point image
+            surf.blit(exclamation_img, (self.pos[0] - offset[0] + self.size[0] // 2 - exclamation_img.get_width() // 2, 
+                                        self.pos[1] - offset[1] - exclamation_img.get_height() - 10))  # Position it above the enemy's head

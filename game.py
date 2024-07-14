@@ -25,6 +25,7 @@ class Game:
         self.assets = {
             'grass': load_images('spritesheet_images/grass'),
             'player': load_images('animations_spritesheet/player'),
+            'exclamation': load_image('spritesheet_images/exclamation.png'),
             'player/idle': Animation(load_images('animations_spritesheet/player/idle'), img_dur=10),
             'player/jump': Animation(load_images('animations_spritesheet/player/jump')),
             'player/run': Animation(load_images('animations_spritesheet/player/run'), img_dur=8),
