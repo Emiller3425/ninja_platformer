@@ -35,22 +35,22 @@ class Tilemap:
                     if layer.data[y][x] == 4:
                         self.tilemap[key].append({'type': 'grass', 'variant': 3, 'pos': (x, y), 'layer': layer_index})
                 if layer.name == 'Decor':
-                    if layer.data[y][x] == 5:
-                        self.tilemap[key].append({'type': 'decor', 'variant': 0, 'pos': (x, y), 'layer': layer_index})
                     if layer.data[y][x] == 6:
-                        self.tilemap[key].append({'type': 'decor', 'variant': 1, 'pos': (x, y), 'layer': layer_index})
+                        self.tilemap[key].append({'type': 'decor', 'variant': 0, 'pos': (x, y), 'layer': layer_index})
                     if layer.data[y][x] == 7:
-                        self.tilemap[key].append({'type': 'decor', 'variant': 2, 'pos': (x, y), 'layer': layer_index})
+                        self.tilemap[key].append({'type': 'decor', 'variant': 1, 'pos': (x, y), 'layer': layer_index})
                     if layer.data[y][x] == 8:
+                        self.tilemap[key].append({'type': 'decor', 'variant': 2, 'pos': (x, y), 'layer': layer_index})
+                    if layer.data[y][x] == 9:
                         self.tilemap[key].append({'type': 'decor', 'variant': 3, 'pos': (x, y), 'layer': layer_index})
                 if layer.name == 'Trees':
-                    if layer.data[y][x] == 9:
-                        self.tilemap[key].append({'type': 'tree', 'variant': 0, 'pos': (x, y), 'layer': layer_index})
                     if layer.data[y][x] == 10:
-                        self.tilemap[key].append({'type': 'tree', 'variant': 1, 'pos': (x, y), 'layer': layer_index})
+                        self.tilemap[key].append({'type': 'tree', 'variant': 0, 'pos': (x, y), 'layer': layer_index})
                     if layer.data[y][x] == 11:
-                        self.tilemap[key].append({'type': 'tree', 'variant': 2, 'pos': (x, y), 'layer': layer_index})
+                        self.tilemap[key].append({'type': 'tree', 'variant': 1, 'pos': (x, y), 'layer': layer_index})
                     if layer.data[y][x] == 12:
+                        self.tilemap[key].append({'type': 'tree', 'variant': 2, 'pos': (x, y), 'layer': layer_index})
+                    if layer.data[y][x] == 13:
                         self.tilemap[key].append({'type': 'tree', 'variant': 3, 'pos': (x, y), 'layer': layer_index})
                 if layer.name == 'Ladder':
                     self.tilemap[key].append({'type': 'ladder', 'variant': 0, 'pos': (x, y), 'layer': layer_index})

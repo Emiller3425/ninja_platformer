@@ -53,7 +53,7 @@ class Projectile:
 class Shuriken(Projectile):
     def __init__(self, game, pos, velocity=[0, 0], frame=0, size=(12,12)):
         super().__init__(game, 'shuriken', pos, velocity=velocity, frame=frame, size=size)
-        self.knockback = pygame.Vector2(1, -2) if velocity[0] > 0 else pygame.Vector2(-1, -2)
+        self.knockback = pygame.Vector2(5, -2) if velocity[0] > 0 else pygame.Vector2(-5, -2)
         self.animation.images = self.animation.images[:]
         if self.velocity[0] < 0:
             self.animation.images.reverse()
@@ -61,7 +61,7 @@ class Shuriken(Projectile):
 class RedShuriken(Projectile):
     def __init__(self, game, pos, velocity=[0, 0], frame=0, size=(12,12)):
         super().__init__(game, 'red_shuriken', pos, velocity=velocity, frame=frame, size=size)
-        self.knockback = pygame.Vector2(3, -2) if velocity[0] > 0 else pygame.Vector2(-3, -2)
+        self.knockback = pygame.Vector2(-3, -2) if velocity[0] > 0 else pygame.Vector2(3, -2)
         self.animation.images = self.animation.images[:]
         if self.velocity[0] < 0:
             self.animation.images.reverse()
