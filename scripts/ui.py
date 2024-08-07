@@ -1,12 +1,20 @@
 import pygame
+import os
+from scripts.entities import Enemy, Boss  # Add this line to import Enemy and Boss classes
 
 class UI:
     def __init__(self, game):
         self.game = game
         self.font = pygame.font.SysFont(None, 24)  # Use the default Pygame font with size 24
 
+        # Load the enemy and boss images
+        self.enemy_image = pygame.image.load('graphics/animations_spritesheet/enemy/0.png').convert_alpha()
+        self.boss_image = pygame.image.load('graphics/animations_spritesheet/boss/0.png').convert_alpha()
+
     def render(self, surf):
         self.render_player_health_bar(surf)
+        self.render_enemy_counter(surf)
+        self.render_boss_counter(surf)
 
     def update(self):
         pass
@@ -28,3 +36,15 @@ class UI:
 
         # Draw the green health bar
         pygame.draw.rect(surf, (0, 255, 0), (health_bar_x, health_bar_y, health_bar_width * health_ratio, health_bar_height))
+
+    def render_enemy_counter(self, surf):
+        enemy_count = sum(isinstance(enemy, Enemy) for enemy in self.game.enemies)
+        text = self.font.render(f"x {enemy_count}", True, (255, 255, 255))
+        surf.blit(self.enemy_image, (10, 30))
+        surf.blit(text, (40, 30))
+
+    def render_boss_counter(self, surf):
+        boss_count = sum(isinstance(enemy, Boss) for enemy in self.game.enemies)
+        text = self.font.render(f"x {boss_count}", True, (255, 255, 255))
+        surf.blit(self.boss_image, (10, 60))
+        surf.blit(text, (40, 60))

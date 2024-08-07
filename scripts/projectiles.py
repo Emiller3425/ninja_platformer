@@ -61,14 +61,15 @@ class Shuriken(Projectile):
 class RedShuriken(Projectile):
     def __init__(self, game, pos, velocity=[0, 0], frame=0, size=(12,12)):
         super().__init__(game, 'red_shuriken', pos, velocity=velocity, frame=frame, size=size)
-        self.knockback = pygame.Vector2(-3, -2) if velocity[0] > 0 else pygame.Vector2(3, -2)
+        # Use the velocity to set the knockback vector
+        knockback_x = pygame.Vector2(velocity[0], 0).normalize().x * 5  # X component based on velocity
+        self.knockback = pygame.Vector2(knockback_x, -2)  # Consistent -2 for Y component
         self.animation.images = self.animation.images[:]
         if self.velocity[0] < 0:
             self.animation.images.reverse()
 
     def check_collision(self):
         if self.game.player.rect().colliderect(self.rect()):
-            self.game.player.take_damage(10)  # Deal 10 damage to the player
+            self.game.player.take_damage(10, self.knockback)  # Deal 10 damage to the player
             return True
         return False
-

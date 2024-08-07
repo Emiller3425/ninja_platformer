@@ -13,7 +13,9 @@ class Tilemap:
         self.offgrid_tiles = []
         self.player_position = (0, 0)
         self.enemy_positions = []
+        self.boss_positions = []
         self.trees = []
+        self.boss_counter = 0
 
     def load(self, level):
         # Load the map tilemap
@@ -35,14 +37,16 @@ class Tilemap:
                     if layer.data[y][x] == 4:
                         self.tilemap[key].append({'type': 'grass', 'variant': 3, 'pos': (x, y), 'layer': layer_index})
                 if layer.name == 'Decor':
-                    if layer.data[y][x] == 6:
+                    if layer.data[y][x] == 5:
                         self.tilemap[key].append({'type': 'decor', 'variant': 0, 'pos': (x, y), 'layer': layer_index})
-                    if layer.data[y][x] == 7:
+                    if layer.data[y][x] == 6:
                         self.tilemap[key].append({'type': 'decor', 'variant': 1, 'pos': (x, y), 'layer': layer_index})
-                    if layer.data[y][x] == 8:
+                    if layer.data[y][x] == 7:
                         self.tilemap[key].append({'type': 'decor', 'variant': 2, 'pos': (x, y), 'layer': layer_index})
-                    if layer.data[y][x] == 9:
+                    if layer.data[y][x] == 8:
                         self.tilemap[key].append({'type': 'decor', 'variant': 3, 'pos': (x, y), 'layer': layer_index})
+                    if layer.data[y][x] == 9:
+                        self.tilemap[key].append({'type': 'decor', 'variant': 4, 'pos': (x, y), 'layer': layer_index})
                 if layer.name == 'Trees':
                     if layer.data[y][x] == 10:
                         self.tilemap[key].append({'type': 'tree', 'variant': 0, 'pos': (x, y), 'layer': layer_index})
@@ -58,6 +62,11 @@ class Tilemap:
                     self.player_position = (x, y)
                 if layer.name == 'Enemy':
                     self.enemy_positions.append((x, y))
+                if layer.name == 'Boss':
+                    self.boss_counter += 1
+                    if self.boss_counter == 4:
+                        self.boss_positions.append((x, y))
+                        self.boss_counter = 0
                         
 
     def extract(self, id_pairs, keep=False):
@@ -95,11 +104,35 @@ class Tilemap:
                 tiles.extend(self.tilemap[check_loc])
         return tiles
     
-    def physics_rects_around(self, pos):
+    def physics_rects_around(self, pos, entity_size):
+        """
+        Find all physics-related rectangles around the given position
+        considering the size of the entity.
+
+        :param pos: Position of the entity (x, y).
+        :param entity_size: Size of the entity (width, height).
+        :return: List of pygame.Rect representing the physics collision boxes.
+        """
         rects = []
-        for tile in self.tiles_arounds(pos):
-            if tile['type'] in PHYSICS_TILE_TYPES:
-                rects.append(pygame.Rect(tile['pos'][0] * self.tile_size, tile['pos'][1] * self.tile_size, self.tile_size, self.tile_size))
+        # Calculate the number of tiles the entity covers
+        start_tile_x = int(pos[0] // self.tile_size)
+        end_tile_x = int((pos[0] + entity_size[0]) // self.tile_size) + 1
+        start_tile_y = int(pos[1] // self.tile_size)
+        end_tile_y = int((pos[1] + entity_size[1]) // self.tile_size) + 1
+
+        for x in range(start_tile_x, end_tile_x):
+            for y in range(start_tile_y, end_tile_y):
+                check_loc = f"{x};{y}"
+                if check_loc in self.tilemap:
+                    for tile in self.tilemap[check_loc]:
+                        if tile['type'] in PHYSICS_TILE_TYPES:
+                            rect = pygame.Rect(
+                                tile['pos'][0] * self.tile_size,
+                                tile['pos'][1] * self.tile_size,
+                                tile.get('width', self.tile_size),
+                                tile.get('height', self.tile_size)
+                            )
+                            rects.append(rect)
         return rects
     
     def ladders_around(self, pos):
