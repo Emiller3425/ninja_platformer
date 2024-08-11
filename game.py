@@ -87,6 +87,47 @@ class Game:
         self.projectiles = []
         self.scroll = [self.tilemap.player_position[0] * self.tilemap.tile_size, self.tilemap.player_position[1] * self.tilemap.tile_size]
 
+    def iris_out_and_reset(self):
+        max_radius = max(self.screen.get_width(), self.screen.get_height())
+        radius = max_radius
+        screen_center = (self.display.get_width() // 2, self.display.get_height() // 2)
+
+        while radius > 0:
+            self.display.blit(self.assets['background'], (0, 0))
+            render_scroll = (int(self.scroll[0]), int(self.scroll[1]))
+
+            # Render everything
+            self.tilemap.render(self.display, offset=render_scroll)
+            self.player.render(self.display, offset=render_scroll)
+
+            for enemy in self.enemies:
+                enemy.render(self.display, offset=render_scroll)
+
+            for particle in self.particles.copy():
+                particle.render(self.display, offset=render_scroll)
+
+            for projectile in self.projectiles.copy():
+                projectile.render(self.display, offset=render_scroll)
+
+            # Render UI
+            self.ui.render(self.display)
+
+            # Draw the iris-out effect
+            surface = pygame.Surface(self.display.get_size())
+            surface.fill((0, 0, 0))
+            pygame.draw.circle(surface, (255, 255, 255), screen_center, radius)
+            surface.set_colorkey((255, 255, 255))
+            self.display.blit(surface, (0, 0))
+
+            radius -= 20  # Increase the decrement to make the effect go faster
+
+            self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
+            pygame.display.update()
+            self.clock.tick(60)
+
+        # Reset the level
+        self.load_level(self.current_level)
+
     def run(self):
         while True:
             if self.show_start_screen:

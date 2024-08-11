@@ -103,8 +103,12 @@ class Player(PhysicsEntity):
     def __init__(self, game, pos, size):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0  # Time the player has been in the air
+        self.dead = False
 
     def update(self, tilemap, movement=(0, 0)):
+        if self.dead:
+            return
+        
         super().update(tilemap, movement=movement)  # Update position and handle collisions
 
         # Handle climbing
@@ -136,16 +140,28 @@ class Player(PhysicsEntity):
             if self.knockback.length() < 0.1:
                 self.knockback = pygame.Vector2(0, 0)  # Stop knockback if it's very small
 
+
+        if self.velocity[1] >= 15 or self.health <= 0:
+            self.die()
+
     def apply_knockback(self, knockback):
         self.knockback = pygame.Vector2(knockback[0], knockback[1])  # Apply knockback
 
     # Handle taking damage and apply knockback
     def take_damage(self, damage, knockback):
+        if self.dead:
+            return
+        
         self.health -= damage
         self.apply_knockback(knockback)
         if self.health <= 0:
             self.health = 0  # Ensure health doesn't go below 0
             # Handle player death here (e.g., restart level, end game, etc.)
+
+    def die(self):
+        self.health = 0  # Ensure health doesn't go below 0
+        self.dead = True  # Set the player as dead
+        self.game.iris_out_and_reset()  # Trigger the iris-out effect and reset the level
 
     # Override the render method and add custom offset for player sprite
     def render(self, surf, offset=(0, 0)):
