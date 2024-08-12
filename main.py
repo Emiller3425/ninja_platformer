@@ -1,4 +1,5 @@
 import pygame
+import asyncio
 import sys
 import random
 import math
@@ -87,7 +88,7 @@ class Game:
         self.projectiles = []
         self.scroll = [self.tilemap.player_position[0] * self.tilemap.tile_size, self.tilemap.player_position[1] * self.tilemap.tile_size]
 
-    def iris_out_and_reset(self):
+    async def iris_out_and_reset(self):
         max_radius = max(self.screen.get_width(), self.screen.get_height())
         radius = max_radius
         screen_center = (self.display.get_width() // 2, self.display.get_height() // 2)
@@ -124,18 +125,21 @@ class Game:
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
+            await asyncio.sleep(0)
 
         # Reset the level
         self.load_level(self.current_level)
 
-    def run(self):
+    async def run(self):
+        print("in run function")
         while True:
             if self.show_start_screen:
                 self.show_start_screen_screen()
             elif self.show_level_selector:
                 self.show_level_selector_screen()
             else:
-                self.main_game_loop()
+                await self.main()
+            await asyncio.sleep(0)
 
     def show_start_screen_screen(self):
         self.screen.fill((0, 0, 0))
@@ -156,7 +160,7 @@ class Game:
             if event.type == pygame.MOUSEBUTTONDOWN:
                 self.show_start_screen = False
                 self.show_level_selector = True
-
+        
     def show_level_selector_screen(self):
         self.screen.fill((0, 0, 0))
         font = pygame.font.SysFont(None, 48)
@@ -200,7 +204,7 @@ class Game:
             self.show_level_selector = True
             self.current_level = None
 
-    def main_game_loop(self):
+    async def main(self):
         self.display.blit(self.assets['background'], (0, 0))
 
         self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -291,4 +295,6 @@ class Game:
 
         self.check_level_completion()
 
-Game().run()
+        await asyncio.sleep(0)
+
+asyncio.run(Game().run())
