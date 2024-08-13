@@ -143,7 +143,7 @@ class Game:
             elif self.show_level_selector:
                 self.show_level_selector_screen()
             else:
-                asyncio.run(self.main())
+                self.main()
             await asyncio.sleep(0)
 
     def show_start_screen_screen(self):
@@ -209,7 +209,7 @@ class Game:
             self.show_level_selector = True
             self.current_level = None
 
-    async def main(self):
+    def main(self):
         self.display.blit(self.assets['background'], (0, 0))
 
         self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
@@ -296,12 +296,8 @@ class Game:
 
         self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
         pygame.display.update()
-        self.clock.tick(120)
+        self.clock.tick(60)
 
         self.check_level_completion()
-
-        await asyncio.sleep(0)
-
-print("this shit running?????")
 
 asyncio.run(Game().run())
