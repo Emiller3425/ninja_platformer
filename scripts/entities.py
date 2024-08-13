@@ -1,5 +1,6 @@
 import pygame
 import random
+import asyncio
 from scripts.projectiles import RedShuriken
 from scripts.tilemap import Tilemap
 from scripts.particle import SkullParticle  # Import SkullParticle
@@ -161,7 +162,6 @@ class Player(PhysicsEntity):
     def die(self):
         self.health = 0  # Ensure health doesn't go below 0
         self.dead = True  # Set the player as dead
-        self.game.iris_out_and_reset()  # Trigger the iris-out effect and reset the level
 
     # Override the render method and add custom offset for player sprite
     def render(self, surf, offset=(0, 0)):

@@ -94,7 +94,7 @@ class Game:
         self.projectiles = []
         self.scroll = [self.tilemap.player_position[0] * self.tilemap.tile_size, self.tilemap.player_position[1] * self.tilemap.tile_size]
 
-    def iris_out_and_reset(self):
+    async def iris_out_and_reset(self):
         max_radius = max(self.screen.get_width(), self.screen.get_height())
         radius = max_radius
         screen_center = (self.display.get_width() // 2, self.display.get_height() // 2)
@@ -126,22 +126,25 @@ class Game:
             surface.set_colorkey((255, 255, 255))
             self.display.blit(surface, (0, 0))
 
-            radius -= 20  # Increase the decrement to make the effect go faster
+            radius -= 12    # Increase the decrement to make the effect go faster
 
             self.screen.blit(pygame.transform.scale(self.display, self.screen.get_size()), (0, 0))
             pygame.display.update()
             self.clock.tick(60)
 
+            await asyncio.sleep(0)
+
         # Reset the level
         self.load_level(self.current_level)
 
     async def run(self):
-        print("in run function")
         while True:
             if self.show_start_screen:
                 self.show_start_screen_screen()
             elif self.show_level_selector:
                 self.show_level_selector_screen()
+            elif self.player.dead == True:
+                await self.iris_out_and_reset()
             else:
                 self.main()
             await asyncio.sleep(0)
