@@ -1,11 +1,8 @@
 name: Deploy Pygame with Pygbag to GitHub Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 permissions:
@@ -18,35 +15,31 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  # Build job
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: 3.12  # Ensure you use the version compatible with Pygbag
 
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+          sudo apt-get install -y python3-pip
+          python3 -m pip install --upgrade pip
           pip install pygbag
           pip install pytmx
           pip install asyncio
 
       - name: Build with Pygbag
         run: |
-          pygbag .  # Assumes your Pygame project is in the root directory
+          pygbag .  # Build the Pygame project with Pygbag
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./build/web  # Upload the web build directory created by Pygbag
+          path: ./build/web  # Upload the web build directory
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
@@ -59,3 +52,4 @@ jobs:
         uses: actions/deploy-pages@v4
         with:
           path: ./build/web  # Deploy the web build directory to GitHub Pages
+
