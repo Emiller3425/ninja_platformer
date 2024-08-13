@@ -28,6 +28,9 @@ jobs:
           sudo apt-get install -y python3-pip
           python3 -m pip install --upgrade pip
           pip install pygame
+          pip install random
+          pip install sys
+          pip install math
           pip install pygbag
           pip install pytmx
           pip install asyncio
