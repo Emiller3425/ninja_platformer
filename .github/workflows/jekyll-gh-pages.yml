@@ -30,7 +30,8 @@ jobs:
           pip install pygbag
           pip install pytmx
           pip install asyncio
-
+          pip install black
+          
       - name: Build with Pygbag
         run: |
           pygbag .  # Build the Pygame project with Pygbag
