@@ -1,5 +1,5 @@
 import pygame
-from pytmx.util_pygame import load_pygame
+import pytmx
 
 NEIGHBORS_OFFSETS = [(-1, 0), (-1, -1), (0, -1), (1, -1), (1, 0), (0, 0), (-1, 1), (0, 1), (1, 1)]
 PHYSICS_TILE_TYPES = {'grass'}
@@ -19,7 +19,7 @@ class Tilemap:
 
     def load(self, level):
         # Load the map tilemap
-        self.tmx_data = load_pygame(f'./graphics/levels/{level}/{level}.tmx')
+        self.tmx_data = pytmx.load_pygame(f'./graphics/levels/{level}/{level}.tmx')
 
         # Iterate through the layers and create the tilemap
         for layer_index, layer in enumerate(self.tmx_data.visible_layers):
