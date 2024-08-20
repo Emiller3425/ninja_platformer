@@ -247,10 +247,10 @@ class Game:
         # Draw the "Resume" and "Return to Menu" options
         option_font = pygame.font.SysFont(None, 48)
         resume_text = option_font.render("Resume", True, (0, 0, 0))
-        menu_text = option_font.render("Return to Main Menu", True, (0, 0, 0))
+        menu_text = option_font.render("Main Menu", True, (0, 0, 0))
 
-        resume_rect = resume_text.get_rect(center=(menu_rect.centerx, menu_rect.centery - 20))
-        menu_rect_text = menu_text.get_rect(center=(menu_rect.centerx, menu_rect.centery + 40))
+        resume_rect = resume_text.get_rect(center=(menu_rect.centerx, menu_rect.centery))
+        menu_rect_text = menu_text.get_rect(center=(menu_rect.centerx, menu_rect.centery + 60))
 
         self.screen.blit(resume_text, resume_rect)
         self.screen.blit(menu_text, menu_rect_text)
