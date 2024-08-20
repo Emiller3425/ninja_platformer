@@ -202,7 +202,7 @@ class Game:
 
             # Draw the green checkmark if the level is completed
             if self.levels[f'level{level_num}']['completed']:
-                checkmark_pos = (rect.right + 20, rect.centery)  # Position the checkmark to the right of the level text
+                checkmark_pos = (rect.right + 20, rect.centery + 5)  # Position the checkmark to the right of the level text
                 self.screen.blit(self.assets['checkmark'], checkmark_pos)
 
         pygame.display.update()
