@@ -222,6 +222,7 @@ class Game:
 
     def show_pause_menu(self):
         # Dim the background
+        self.movement = [False, False]
         overlay = pygame.Surface(self.screen.get_size())
         overlay.fill((150, 150, 150))
         overlay.set_alpha(2)  # Transparency level (0 = fully transparent, 255 = fully opaque)
