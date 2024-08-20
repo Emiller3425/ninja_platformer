@@ -1,19 +1,20 @@
 import pygame
+import pygame.gfxdraw 
 import os
-from scripts.entities import Enemy, Boss  # Add this line to import Enemy and Boss classes
+import math  # Import math module for rotation calculations
+from scripts.entities import Enemy, Boss
 
 class UI:
     def __init__(self, game):
         self.game = game
         self.font = pygame.font.SysFont(None, 24)  # Use the default Pygame font with size 24
 
-        # Load the enemy and boss images
-        self.enemy_image = pygame.image.load('graphics/animations_spritesheet/enemy/0.png').convert_alpha()
-        self.boss_image = pygame.image.load('graphics/animations_spritesheet/boss/0.png').convert_alpha()
+        # Load the shuriken image
+        self.shuriken_image = pygame.image.load('graphics/animations_spritesheet/player/projectiles/shuriken/0.png').convert_alpha()
 
-        # # Load the control guide images
-        # self.arrow_keys_image = pygame.image.load('graphics/spritesheet_images/arrow_keys.png').convert_alpha()
-        # self.space_bar_image = pygame.image.load('graphics/spritesheet_images/space_bar.png').convert_alpha()
+        # Load the enemy and boss images
+        # self.enemy_image = pygame.image.load('graphics/animations_spritesheet/enemy/0.png').convert_alpha()
+        # self.boss_image = pygame.image.load('graphics/animations_spritesheet/boss/0.png').convert_alpha()
 
         # Start time to track when the game starts
         self.start_time = pygame.time.get_ticks()
@@ -24,6 +25,7 @@ class UI:
 
     def render(self, surf):
         self.render_player_health_bar(surf)
+        self.render_shuriken_cooldown(surf)
         # self.render_control_guide(surf)
         # self.render_enemy_counter(surf)
         # self.render_boss_counter(surf)
@@ -49,55 +51,70 @@ class UI:
         # Draw the green health bar
         pygame.draw.rect(surf, (0, 255, 0), (health_bar_x, health_bar_y, health_bar_width * health_ratio, health_bar_height))
 
+    def render_shuriken_cooldown(self, surf):
+        player = self.game.player
+        cooldown_time = player.shuriken_cooldown / 60  # Convert frames to seconds (assuming 60 FPS)
+        max_cooldown = 1.0  # 1 second cooldown
+
+        # Position the shuriken cooldown UI to the right of the health bar
+        health_bar_x = 10
+        health_bar_width = 100
+        center = (health_bar_x + health_bar_width + 10, 15)  # Adjust the y-position if needed
+        radius = 6  # Radius of the circle
+
+        if player.shuriken_cooldown > 0:
+            # Create a surface with per-pixel alpha
+            cooldown_surface = pygame.Surface((radius * 2, radius * 2), pygame.SRCALPHA)
+
+            # Draw the dark grey circle background with alpha
+            pygame.draw.circle(cooldown_surface, (250, 250, 250, 0), (radius, radius), radius)  # Alpha set to 0 (transparent)
+
+            # Calculate the filled angle
+            filled_angle = (cooldown_time / max_cooldown) * 2 * math.pi
+
+            # Draw the filled arc as a polygon (a pie shape)
+            points = [(radius, radius)]  # Start at the center of the circle
+            points.extend([
+                (radius + radius * math.cos(math.pi * 1.5 + angle),
+                radius + radius * math.sin(math.pi * 1.5 + angle))
+                for angle in [filled_angle * i / 20 for i in range(21)]
+            ])
+
+            # Ensure the polygon correctly closes the segment
+            if filled_angle < 2 * math.pi:
+                points.append((radius, radius))
+            
+            if player.shuriken_cooldown > 2:
+                pygame.draw.polygon(cooldown_surface, (30, 30, 30, 150), points)
+
+                # Blit the cooldown surface onto the main surface
+                surf.blit(cooldown_surface, (center[0] - radius, center[1] - radius))
+
+                # Draw the shuriken image in the center
+                shuriken_rect = self.shuriken_image.get_rect(center=center)
+                surf.blit(self.shuriken_image, shuriken_rect)
+            else:
+                shuriken_rect = self.shuriken_image.get_rect(center=center)
+                surf.blit(self.shuriken_image, shuriken_rect)
+
     # def render_control_guide(self, surf):
-    #     current_time = pygame.time.get_ticks()
-    #     elapsed_time = (current_time - self.start_time) / 1000  # Convert milliseconds to seconds
-
-    #     if elapsed_time <= self.display_duration + self.fade_duration:
-    #         # Calculate the alpha (transparency) based on the elapsed time for fade-out effect
-    #         if elapsed_time <= self.display_duration:
-    #             alpha = 255  # Fully opaque
-    #         else:
-    #             fade_elapsed_time = elapsed_time - self.display_duration
-    #             alpha = max(0, 255 - int(255 * (fade_elapsed_time / self.fade_duration)))
-
-    #         # Create a surface to hold the control guide with alpha support
-    #         control_guide_surf = pygame.Surface(surf.get_size(), pygame.SRCALPHA)
-    #         control_guide_surf.fill((0, 0, 0, 0))  # Fill with transparent color
-
-    #         # Set the alpha value
-    #         arrow_keys_img = self.arrow_keys_image.copy()
-    #         arrow_keys_img.set_alpha(alpha)
-    #         space_bar_img = self.space_bar_image.copy()
-    #         space_bar_img.set_alpha(alpha)
-
-    #         # Define positions
-    #         arrow_keys_pos = (surf.get_width() // 2 - arrow_keys_img.get_width() // 2, surf.get_height() // 2 - 60)
-    #         space_bar_pos = (surf.get_width() // 2 - space_bar_img.get_width() // 2, surf.get_height() // 2 + 10)
-
-    #         # Render text
-    #         move_text = self.font.render("Move", True, (255, 255, 255))
-    #         attack_text = self.font.render("Attack", True, (255, 255, 255))
-    #         move_text.set_alpha(alpha)
-    #         attack_text.set_alpha(alpha)
-
-    #         # Blit images and text onto the control guide surface
-    #         control_guide_surf.blit(arrow_keys_img, arrow_keys_pos)
-    #         control_guide_surf.blit(space_bar_img, space_bar_pos)
-    #         control_guide_surf.blit(move_text, (arrow_keys_pos[0] + arrow_keys_img.get_width() // 2 - move_text.get_width() // 2, arrow_keys_pos[1] - 30))
-    #         control_guide_surf.blit(attack_text, (space_bar_pos[0] + space_bar_img.get_width() // 2 - attack_text.get_width() // 2, space_bar_pos[1] + space_bar_img.get_height() + 10))
-
-    #         # Blit the control guide surface onto the main surface
-    #         surf.blit(control_guide_surf, (0, 0))
+    #     # Example control guide rendering
+    #     guide_text = "Press W to jump, A/D to move, and SPACE to attack"
+    #     guide_surface = self.font.render(guide_text, True, (255, 255, 255))
+    #     surf.blit(guide_surface, (10, 50))
 
     # def render_enemy_counter(self, surf):
-    #     enemy_count = sum(isinstance(enemy, Enemy) for enemy in self.game.enemies)
-    #     text = self.font.render(f"x {enemy_count}", True, (255, 255, 255))
-    #     surf.blit(self.enemy_image, (10, 30))
-    #     surf.blit(text, (40, 30))
+    #     # Example enemy counter rendering
+    #     enemy_count = len(self.game.enemies)
+    #     enemy_text = f"Enemies: {enemy_count}"
+    #     enemy_surface = self.font.render(enemy_text, True, (255, 255, 255))
+    #     surf.blit(enemy_surface, (10, 70))
+    #     surf.blit(self.enemy_image, (120, 70))
 
     # def render_boss_counter(self, surf):
-    #     boss_count = sum(isinstance(enemy, Boss) for enemy in self.game.enemies)
-    #     text = self.font.render(f"x {boss_count}", True, (255, 255, 255))
-    #     surf.blit(self.boss_image, (10, 60))
-    #     surf.blit(text, (40, 60))
+    #     # Example boss counter rendering
+    #     boss_count = len(self.game.bosses)
+    #     boss_text = f"Bosses: {boss_count}"
+    #     boss_surface = self.font.render(boss_text, True, (255, 255, 255))
+    #     surf.blit(boss_surface, (10, 90))
+    #     surf.blit(self.boss_image, (120, 90))

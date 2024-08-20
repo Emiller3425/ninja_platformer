@@ -105,10 +105,13 @@ class Player(PhysicsEntity):
         super().__init__(game, 'player', pos, size)
         self.air_time = 0  # Time the player has been in the air
         self.dead = False
+        self.shuriken_cooldown = 0  # Cooldown for throwing shurikens
 
     def update(self, tilemap, movement=(0, 0)):
         if self.dead:
             return
+        if self.shuriken_cooldown > 0:
+            self.shuriken_cooldown -= 1
         
         super().update(tilemap, movement=movement)  # Update position and handle collisions
 
@@ -158,6 +161,9 @@ class Player(PhysicsEntity):
         if self.health <= 0:
             self.health = 0  # Ensure health doesn't go below 0
             # Handle player death here (e.g., restart level, end game, etc.)
+
+    def throw_shuriken(self):
+        self.shuriken_cooldown = 60  # Set cooldown to 60 frames (1 second)
 
     def die(self):
         self.health = 0  # Ensure health doesn't go below 0
