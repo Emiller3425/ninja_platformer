@@ -160,7 +160,7 @@ class Game:
 
     async def run(self):
         while True:
-            await self.play_music()
+            self.play_music()
             if (self.show_start_screen):
                 self.music['beat'].stop()
                 self.show_start_screen_screen() 
@@ -181,11 +181,11 @@ class Game:
                 self.main()
             await asyncio.sleep(0)
 
-    async def play_music(self):
+    def play_music(self):
         if self.pygame_play_mixer:
             self.pygame_play_mixer = False
             self.music['beat'].play(-1)
-        await asyncio.sleep(0)
+
        
     def show_start_screen_screen(self):
         self.screen.fill((0, 0, 0))
