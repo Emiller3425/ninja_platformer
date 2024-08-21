@@ -174,8 +174,6 @@ class Game:
                 self.pygame_play_mixer = True
                 await self.iris_out_and_reset()
             elif self.is_paused:
-                self.music['beat'].stop()
-                self.pygame_play_mixer = True
                 self.show_pause_menu()
             else:
                 self.main()
