@@ -174,7 +174,7 @@ class Game:
                 self.music['beat'].stop()
                 self.show_pause_menu()
             else:
-                self.music['beat'].play(-1)
+                self.music['beat'].play(loops=-1)
                 self.main()
             await asyncio.sleep(0)
        
