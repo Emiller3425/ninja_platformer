@@ -121,7 +121,10 @@ class Player(PhysicsEntity):
             if entity_rect.colliderect(ladder):
                 if self.action != 'climb':
                     self.velocity[1] = 0
+                    if self.action != 'climb':
+                        self.game.audio['climbing'].play(loops=-1)
                     self.set_action('climb')
+                    self.game.audio['walking'].stop()
                 return
 
         self.air_time += 1
@@ -130,11 +133,18 @@ class Player(PhysicsEntity):
 
         # Set appropriate action based on state
         if self.air_time > 4 and self.action != 'climb':
+            self.game.audio['climbing'].stop()
+            self.game.audio['walking'].stop() 
             self.set_action('jump')
         elif movement[0] != 0:
-            self.set_action('run')
+            if self.action != 'run':
+                self.game.audio['climbing'].stop()
+                self.game.audio['walking'].play(loops=-1)
+            self.set_action('run') # Play footsteps sound
         else:
             self.set_action('idle')
+            self.game.audio['climbing'].stop()
+            self.game.audio['walking'].stop()  # Stop footsteps sound
 
         # Apply knockback to movement
         if self.knockback.length() > 0:
@@ -144,12 +154,13 @@ class Player(PhysicsEntity):
             if self.knockback.length() < 0.1:
                 self.knockback = pygame.Vector2(0, 0)  # Stop knockback if it's very small
 
-
+        # Player can die when on a ladder
         if self.velocity[1] >= 15 or self.health <= 0:
             self.die()
 
     def apply_knockback(self, knockback):
-        self.knockback = pygame.Vector2(knockback[0], knockback[1])  # Apply knockback
+        if self.action != 'climb':
+            self.knockback = pygame.Vector2(knockback[0], knockback[1])  # Apply knockback
 
     # Handle taking damage and apply knockback
     def take_damage(self, damage, knockback):
@@ -160,10 +171,13 @@ class Player(PhysicsEntity):
         self.apply_knockback(knockback)
         if self.health <= 0:
             self.health = 0  # Ensure health doesn't go below 0
-            # Handle player death here (e.g., restart level, end game, etc.)
+            self.die()  # Player dies when health is zero
+            return
+        self.game.audio['damage'].play() 
 
     def throw_shuriken(self):
         self.shuriken_cooldown = 60  # Set cooldown to 60 frames (1 second)
+        self.game.audio['shuriken_throw'].play()  # Play shuriken throw sound
 
     def die(self):
         self.health = 0  # Ensure health doesn't go below 0
@@ -200,8 +214,11 @@ class Enemy(PhysicsEntity):
         self.health -= damage
         if self.health <= 0:
             self.health = 0
+            self.game.audio['death'].play()  # Play enemy death sound
             self.game.enemies.remove(self)
             self.game.particles.append(SkullParticle(self.game, (self.pos[0] + self.size[0] / 2, self.pos[1])))  # Add skull particle
+            return
+        self.game.audio['damage'].play()
 
     def update(self, tilemap, movement=(0, 0)):
         # Check for dying from falling too fast
@@ -320,8 +337,11 @@ class Boss(PhysicsEntity):
         self.health -= damage
         if self.health <= 0:
             self.health = 0
+            self.game.audio['death'].play()
             self.game.enemies.remove(self)
             self.game.particles.append(SkullParticle(self.game, (self.pos[0] + self.size[0] / 2, self.pos[1])))  # Add skull particle
+            return
+        self.game.audio['damage'].play()
 
     def update(self, tilemap, movement=(0, 0)):
         # Check for dying from falling too fast
@@ -374,7 +394,7 @@ class Boss(PhysicsEntity):
         # Special attack logic
         if self.special_attack_cooldown == 0 and self.tracking_player:
             self.special_attack()
-            self.special_attack_cooldown = 50
+            self.special_attack_cooldown = 100
         elif self.special_attack_cooldown > 0:
             self.special_attack_cooldown -= 1
 

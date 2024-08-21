@@ -20,6 +20,10 @@ import asyncio
 class Game:
     def __init__(self):
         pygame.init()
+        pygame.mixer.init()
+        pygame.mixer.music.load('audio/beat.ogg')
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.play(-1)
 
         pygame.display.set_caption("Ninja Platformer")
         self.screen = pygame.display.set_mode((640, 480))
@@ -64,6 +68,15 @@ class Game:
             'boss/idle': Animation(load_images('animations_spritesheet/boss/idle'), img_dur=10),
             'boss/run': Animation(load_images('animations_spritesheet/boss/run'), img_dur=6),
             'checkmark': load_image('spritesheet_images/checkmark.png'),  # Load the checkmark image
+        }
+
+        self.audio = {
+            'climbing': pygame.mixer.Sound('audio/climbing.ogg'),
+            'death': pygame.mixer.Sound('audio/death.ogg'),
+            'shuriken_throw': pygame.mixer.Sound('audio/shuriken_throw.ogg'),
+            'damage': pygame.mixer.Sound('audio/damage.ogg'),
+            'walking': pygame.mixer.Sound('audio/walking.ogg'),
+            'beat': pygame.mixer.Sound('audio/beat.ogg'),
         }
 
         self.clouds = Clouds(load_images('spritesheet_images/cloud'), count=16)
@@ -283,6 +296,7 @@ class Game:
     def main(self):
 
         self.display.blit(self.current_background, (0, 0))
+        self.audio['shuriken_throw'].set_volume(0.5)
 
         self.scroll[0] += (self.player.rect().centerx - self.display.get_width() / 2 - self.scroll[0]) / 30
         self.scroll[1] += (self.player.rect().centery - self.display.get_height() / 2 - self.scroll[1]) / 30
