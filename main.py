@@ -77,7 +77,7 @@ class Game:
         }
 
         self.music = {
-            'beat': pygame.mixer.music.load('audio/beat.ogg'),
+            'beat': pygame.mixer.music.load('audio/beat.mp3'),
         }
 
         self.clouds = Clouds(load_images('spritesheet_images/cloud'), count=16)
