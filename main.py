@@ -163,22 +163,28 @@ class Game:
             await self.play_music()
             if (self.show_start_screen):
                 self.music['beat'].stop()
-                self.show_start_screen_screen()
+                self.show_start_screen_screen() 
+                self.pygame_play_mixer = True
             elif (self.show_level_selector):
                 self.music['beat'].stop()
+                self.pygame_play_mixer = True
                 self.show_level_selector_screen()
             elif (self.player.dead):
                 self.music['beat'].stop()
+                self.pygame_play_mixer = True
                 await self.iris_out_and_reset()
             elif self.is_paused:
                 self.music['beat'].stop()
+                self.pygame_play_mixer = True
                 self.show_pause_menu()
             else:
                 self.main()
             await asyncio.sleep(0)
 
     async def play_music(self):
-        self.music['beat'].play(-1)
+        if self.pygame_play_mixer:
+            self.pygame_play_mixer = False
+            self.music['beat'].play(-1)
         await asyncio.sleep(0)
        
     def show_start_screen_screen(self):
