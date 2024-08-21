@@ -179,10 +179,7 @@ class Game:
 
     def play_music(self):
         self.music['beat'].set_volume(0.3)
-        self.music['beat'].play(-1)
-        while True:
-            break
-       
+        self.music['beat'].play(-1)      
 
     def show_start_screen_screen(self):
         self.screen.fill((0, 0, 0))
