@@ -74,7 +74,6 @@ class Game:
             'shuriken_throw': pygame.mixer.Sound('audio/shuriken_throw.ogg'),
             'damage': pygame.mixer.Sound('audio/damage.ogg'),
             'walking': pygame.mixer.Sound('audio/walking.ogg'),
-            'beat': pygame.mixer.Sound('audio/beat.ogg'),
         }
 
         self.music = {
