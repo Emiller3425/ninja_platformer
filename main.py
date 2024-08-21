@@ -77,7 +77,7 @@ class Game:
         }
 
         self.music = {
-            'beat': pygame.mixer.music.load('audio/beat.ogg'),
+            'beat': pygame.mixer.Sound('audio/beat.ogg'),
         }
 
         self.clouds = Clouds(load_images('spritesheet_images/cloud'), count=16)
@@ -178,8 +178,7 @@ class Game:
             await asyncio.sleep(0)
 
     async def play_music(self):
-        if not pygame.mixer.music.get_busy():
-            pygame.mixer.music.play(-1)
+        self.music['beat'].play(-1)
         await asyncio.sleep(0)
        
     def show_start_screen_screen(self):
