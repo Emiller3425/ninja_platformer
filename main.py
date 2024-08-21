@@ -159,7 +159,7 @@ class Game:
         self.load_level(self.current_level)
 
     async def run(self):
-        await self.play_music()
+        self.play_music()
         while True:
             if (self.show_start_screen):
                 self.music['beat'].stop()
