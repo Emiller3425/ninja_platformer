@@ -21,9 +21,6 @@ class Game:
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
-        pygame.mixer.music.load('audio/beat.ogg')
-        pygame.mixer.music.set_volume(0.1)
-        pygame.mixer.music.play(-1)
 
         pygame.display.set_caption("Ninja Platformer")
         self.screen = pygame.display.set_mode((640, 480))
@@ -158,6 +155,9 @@ class Game:
         self.load_level(self.current_level)
 
     async def run(self):
+        pygame.mixer.music.load('audio/beat.ogg')
+        pygame.mixer.music.set_volume(0.1)
+        pygame.mixer.music.play(-1)
         while True:
             if (self.show_start_screen):
                 self.show_start_screen_screen()
