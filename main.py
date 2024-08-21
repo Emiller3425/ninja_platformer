@@ -25,6 +25,7 @@ class Game:
         pygame.display.set_caption("Ninja Platformer")
         self.screen = pygame.display.set_mode((640, 480))
         self.display = pygame.Surface((320, 240))
+        self.pygame_play_mixer = True
 
         self.clock = pygame.time.Clock()
         self.show_start_screen = True
@@ -173,8 +174,6 @@ class Game:
                 self.music['beat'].stop()
                 self.show_pause_menu()
             else:
-                self.music['beat'].set_volume(0.3)
-                self.music['beat'].play(-1)
                 self.main()
             await asyncio.sleep(0)
        
@@ -301,6 +300,9 @@ class Game:
             self.current_level = None
 
     def main(self):
+        if self.pygame_play_mixer:
+            self.music['beat'].play(-1)
+            self.pygame_play_mixer = False
 
         self.display.blit(self.current_background, (0, 0))
         self.audio['shuriken_throw'].set_volume(0.5)
