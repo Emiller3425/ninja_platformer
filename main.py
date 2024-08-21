@@ -163,14 +163,20 @@ class Game:
             self.play_music()
             if (self.show_start_screen):
                 self.music['beat'].stop()
+                self.audio['walking'].stop()
+                self.audio['climbing'].stop()
                 self.show_start_screen_screen() 
                 self.pygame_play_mixer = True
             elif (self.show_level_selector):
                 self.music['beat'].stop()
+                self.audio['walking'].stop()
+                self.audio['climbing'].stop()
                 self.pygame_play_mixer = True
                 self.show_level_selector_screen()
             elif (self.player.dead):
                 self.music['beat'].stop()
+                self.audio['walking'].stop()
+                self.audio['climbing'].stop()
                 self.pygame_play_mixer = True
                 await self.iris_out_and_reset()
             elif self.is_paused:
@@ -407,3 +413,4 @@ class Game:
         self.check_level_completion()
 
 asyncio.run(Game().run())
+
