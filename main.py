@@ -174,6 +174,7 @@ class Game:
                 self.music['beat'].stop()
                 self.show_pause_menu()
             else:
+                self.music['beat'].play(-1)
                 self.main()
             await asyncio.sleep(0)
        
@@ -300,9 +301,6 @@ class Game:
             self.current_level = None
 
     def main(self):
-        if self.pygame_play_mixer:
-            self.music['beat'].play(-1)
-            self.pygame_play_mixer = False
 
         self.display.blit(self.current_background, (0, 0))
         self.audio['shuriken_throw'].set_volume(0.5)
