@@ -76,6 +76,10 @@ class Game:
             'beat': pygame.mixer.Sound('audio/beat.ogg'),
         }
 
+        self.music = {
+            'beat': pygame.mixer.Sound('audio/beat.ogg'),
+        }
+
         self.clouds = Clouds(load_images('spritesheet_images/cloud'), count=16)
 
         # Initialize the UI
@@ -155,21 +159,30 @@ class Game:
         self.load_level(self.current_level)
 
     async def run(self):
-        pygame.mixer.music.load('audio/beat.ogg')
-        pygame.mixer.music.set_volume(0.1)
-        pygame.mixer.music.play(-1)
+        await self.play_music()
         while True:
             if (self.show_start_screen):
+                self.music['beat'].stop()
                 self.show_start_screen_screen()
             elif (self.show_level_selector):
+                self.music['beat'].stop()
                 self.show_level_selector_screen()
             elif (self.player.dead):
+                self.music['beat'].stop()
                 await self.iris_out_and_reset()
             elif self.is_paused:
+                self.music['beat'].stop()
                 self.show_pause_menu()
             else:
                 self.main()
             await asyncio.sleep(0)
+
+    async def play_music(self):
+        self.music['beat'].set_volume(0.3)
+        self.music['beat'].play(-1)
+        while True:
+            break
+        await asyncio.sleep(0)
 
     def show_start_screen_screen(self):
         self.screen.fill((0, 0, 0))
@@ -215,7 +228,7 @@ class Game:
 
             # Draw the green checkmark if the level is completed
             if self.levels[f'level{level_num}']['completed']:
-                checkmark_pos = (rect.right + 20, rect.centery + 5)  # Position the checkmark to the right of the level text
+                checkmark_pos = (rect.right + 20, rect.centery - 5)  # Position the checkmark to the right of the level text
                 self.screen.blit(self.assets['checkmark'], checkmark_pos)
 
         pygame.display.update()
