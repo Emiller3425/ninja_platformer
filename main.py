@@ -177,12 +177,12 @@ class Game:
                 self.main()
             await asyncio.sleep(0)
 
-    async def play_music(self):
+    def play_music(self):
         self.music['beat'].set_volume(0.3)
         self.music['beat'].play(-1)
         while True:
             break
-        await asyncio.sleep(0)
+       
 
     def show_start_screen_screen(self):
         self.screen.fill((0, 0, 0))
