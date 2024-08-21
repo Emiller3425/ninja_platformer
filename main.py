@@ -182,7 +182,7 @@ class Game:
     def play_music(self):
         if self.pygame_play_mixer:
             self.pygame_play_mixer = False
-            self.music['beat'].set_volume(0.05)
+            self.music['beat'].set_volume(0.15)
             self.music['beat'].play(-1)
 
        
