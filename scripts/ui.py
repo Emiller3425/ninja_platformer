@@ -7,14 +7,10 @@ from scripts.entities import Enemy, Boss
 class UI:
     def __init__(self, game):
         self.game = game
-        self.font = pygame.font.SysFont(None, 24)  # Use the default Pygame font with size 24
+        self.font = pygame.font.SysFont(None, 16)  # Adjusted font size to 16 for smaller text
 
         # Load the shuriken image
         self.shuriken_image = pygame.image.load('graphics/animations_spritesheet/player/projectiles/shuriken/0.png').convert_alpha()
-
-        # Load the enemy and boss images
-        # self.enemy_image = pygame.image.load('graphics/animations_spritesheet/enemy/0.png').convert_alpha()
-        # self.boss_image = pygame.image.load('graphics/animations_spritesheet/boss/0.png').convert_alpha()
 
         # Start time to track when the game starts
         self.start_time = pygame.time.get_ticks()
@@ -26,6 +22,7 @@ class UI:
     def render(self, surf):
         self.render_player_health_bar(surf)
         self.render_shuriken_cooldown(surf)
+        self.render_objective(surf)  # Add this line to render the objective and counter
         # self.render_control_guide(surf)
         # self.render_enemy_counter(surf)
         # self.render_boss_counter(surf)
@@ -97,24 +94,40 @@ class UI:
                 shuriken_rect = self.shuriken_image.get_rect(center=center)
                 surf.blit(self.shuriken_image, shuriken_rect)
 
-    # def render_control_guide(self, surf):
-    #     # Example control guide rendering
-    #     guide_text = "Press W to jump, A/D to move, and SPACE to attack"
-    #     guide_surface = self.font.render(guide_text, True, (255, 255, 255))
-    #     surf.blit(guide_surface, (10, 50))
+    def render_objective(self, surf):
+        # Objective text
+        objective_text = "Goal: Eliminate all enemies"
 
-    # def render_enemy_counter(self, surf):
-    #     # Example enemy counter rendering
-    #     enemy_count = len(self.game.enemies)
-    #     enemy_text = f"Enemies: {enemy_count}"
-    #     enemy_surface = self.font.render(enemy_text, True, (255, 255, 255))
-    #     surf.blit(enemy_surface, (10, 70))
-    #     surf.blit(self.enemy_image, (120, 70))
+        # Get the number of remaining enemies
+        remaining_enemies = len(self.game.enemies)
+        counter_text = "Enemies left: "
+        enemies_number_text = f"{remaining_enemies}"
 
-    # def render_boss_counter(self, surf):
-    #     # Example boss counter rendering
-    #     boss_count = len(self.game.bosses)
-    #     boss_text = f"Bosses: {boss_count}"
-    #     boss_surface = self.font.render(boss_text, True, (255, 255, 255))
-    #     surf.blit(boss_surface, (10, 90))
-    #     surf.blit(self.boss_image, (120, 90))
+        # Colors
+        outline_color = (0, 0, 0)  # Black color for the outline
+        text_color = (255, 255, 255)  # White color for the main text
+        enemies_number_color = (255, 0, 0)  # Red color for the number of enemies
+
+        # Render surfaces for the objective, counter, and number
+        objective_surface = self.font.render(objective_text, True, text_color)
+        counter_surface = self.font.render(counter_text, True, text_color)
+        enemies_number_surface = self.font.render(enemies_number_text, True, enemies_number_color)
+
+        # Position the text in the top right corner
+        surf_width = surf.get_width()
+        objective_x = surf_width - objective_surface.get_width() - 10
+        counter_x = surf_width - (counter_surface.get_width() + enemies_number_surface.get_width()) - 10
+        text_y = 10
+
+        # Render the outline by drawing the text offset in different directions
+        for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1), (-1, -1), (1, 1), (-1, 1), (1, -1)]:
+            surf.blit(self.font.render(objective_text, True, outline_color), (objective_x + dx, text_y + dy))
+            surf.blit(self.font.render(counter_text, True, outline_color), (counter_x + dx, text_y + 20 + dy))
+            surf.blit(self.font.render(enemies_number_text, True, outline_color), (counter_x + counter_surface.get_width() + dx, text_y + 20 + dy))
+
+        # Render the actual text on top
+        surf.blit(objective_surface, (objective_x, text_y))
+        surf.blit(counter_surface, (counter_x, text_y + 20))
+        surf.blit(enemies_number_surface, (counter_x + counter_surface.get_width(), text_y + 20))
+
+
