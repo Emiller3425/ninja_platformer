@@ -31,7 +31,7 @@ class Game:
         self.show_start_screen = True
         self.show_level_selector = False
         self.current_level = None
-        self.is_paused = False  # New attribute to track if the game is paused
+        self.is_paused = False  # New attribute to track if the game is pause
         self.levels = {
             'level1': {'completed': False, 'tilemap': 'level1', 'background': 'background1'},
             'level2': {'completed': False, 'tilemap': 'level2', 'background': 'background2'},
